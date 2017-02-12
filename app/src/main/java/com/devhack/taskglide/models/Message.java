@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * Created by Michael Yoon Huh on 2/12/2017.
  */
 
-public class ChatMessage extends JSONObject {
+public class Message extends JSONObject {
 
     @SerializedName("user")
     @Expose
@@ -18,7 +18,7 @@ public class ChatMessage extends JSONObject {
     @Expose
     private String message;
 
-    public ChatMessage(String user, String message) {
+    public Message(String user, String message) {
         this.user = user;
         this.message = message;
     }

@@ -15,8 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.constants.TaskGlideConstants;
+import com.devhack.taskglide.models.Message;
 import com.devhack.taskglide.utils.PubNubUtils;
 import com.devhack.taskglide.utils.SnackbarUtils;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
@@ -178,13 +180,16 @@ public class ChatFragment extends Fragment {
                 Log.d(LOG_TAG, "message(): Message callback invoked.");
 
                 JsonElement messageElement = message.getMessage();
-                JsonObject messageObject = messageElement.getAsJsonObject();
+                Gson gson = new Gson();
+                Message receivedMessage = gson.fromJson(messageElement, Message.class);
+                final String messageString = receivedMessage.getUser() + ": " + receivedMessage.getMessage();
 
-                String messageUser = messageObject.get("user").toString() + ": ";
-                messageUser = messageUser.replace("\"", "");
-                String messageMessage = messageObject.get("message").toString();
-                messageMessage = messageMessage.replace("\"", "");
-                final String messageString = messageUser + messageMessage;
+//                JsonObject messageObject = messageElement.getAsJsonObject();
+//                String messageUser = messageObject.get("user").toString() + ": ";
+//                messageUser = messageUser.replace("\"", "");
+//                String messageMessage = messageObject.get("message").toString();
+//                messageMessage = messageMessage.replace("\"", "");
+//                final String messageString = messageUser + messageMessage;
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override

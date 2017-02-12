@@ -15,12 +15,15 @@ import android.widget.RelativeLayout;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.constants.TaskGlideConstants;
 import com.devhack.taskglide.models.Task;
+import com.devhack.taskglide.models.Tasks;
 import com.devhack.taskglide.ui.TasksAdapter;
 import com.devhack.taskglide.utils.PubNubUtils;
 import com.devhack.taskglide.utils.SnackbarUtils;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -39,13 +42,13 @@ import butterknife.Unbinder;
  * Created by Michael Yoon Huh on 2/11/2017.
  */
 
-public class TasksFragment extends Fragment {
+public class TasksFragment extends Fragment implements TasksAdapter.TaskListener {
 
     private static final String LOG_TAG = TasksFragment.class.getSimpleName();
 
     private static final int NUMBER_OF_COLUMNS = 1;
 
-    private boolean isInitialCall = true;
+    private boolean isSenderCall = true;
     private boolean isConnected = false;
     private List<Task> taskList;
     private PubNub pubNub;
@@ -84,10 +87,10 @@ public class TasksFragment extends Fragment {
 
         // TODO: Change list of tasks later, once network response is completed.
         taskList = new LinkedList<>();
-        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", false));
-        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", false));
-        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", false));
-        taskList.add(new Task("Wedding Photos", "$10000", false));
+        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", 0));
+        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", 0));
+        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", 0));
+        taskList.add(new Task("Wedding Photos", "$10000", 0));
 
         initRecyclerView(taskList);
     }
@@ -96,15 +99,11 @@ public class TasksFragment extends Fragment {
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), NUMBER_OF_COLUMNS);
         fragmentRecyclerView.setLayoutManager(layoutManager);
 
-        TasksAdapter adapter = new TasksAdapter(taskList, getContext());
+        TasksAdapter adapter = new TasksAdapter(taskList, this, getContext());
         fragmentRecyclerView.setAdapter(adapter);
     }
 
     /** PUBNUB METHODS _________________________________________________________________________ **/
-
-    //"name"
-    //"amount"
-    //"type"
 
     private void initPubNubConnection() {
         SubscribeCallback callback = new SubscribeCallback() {
@@ -148,10 +147,10 @@ public class TasksFragment extends Fragment {
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
                 Log.d(LOG_TAG, "message(): Message callback invoked.");
-                if (!isInitialCall) {
+                if (!isSenderCall) {
                     getUpdatedTasks(message);
                 } else {
-                    isInitialCall = false;
+                    isSenderCall = false;
                 }
             }
 
@@ -169,6 +168,7 @@ public class TasksFragment extends Fragment {
         if (pubNub != null && isConnected) {
             JsonObject message = new JsonObject();
             message.addProperty("name", "don't care");
+            isSenderCall = true;
 
             Log.d(LOG_TAG, "status(): ConnectedCategory publish initializing...");
             pubNub.publish().channel(TaskGlideConstants.TASKS_CHANNEL)
@@ -209,14 +209,15 @@ public class TasksFragment extends Fragment {
         }
     }
 
-    // TYPE:
-    // 0 = clientupdate
-    // 1 = serverupdate
-
     private void getUpdatedTasks(PNMessageResult result) {
 
         Log.d(LOG_TAG, "getUpdatedTasks(): Result: " + result.getMessage().toString());
 
+        Gson gson = new Gson();
+        Tasks tasks = gson.fromJson(result.getMessage(), Tasks.class);
+        taskList = tasks.getTasks();
+
+        /*
         JsonElement jsonElement = result.getMessage();
         Log.d(LOG_TAG, "getUpdatedTasks(): jsonElement: " + jsonElement.toString());
 
@@ -237,16 +238,10 @@ public class TasksFragment extends Fragment {
             String amount = taskObject.get("amount").toString();
             int statusValue = taskObject.get("status").getAsInt();
 
-            boolean status;
-            if (statusValue == 0) {
-                status = false;
-            } else {
-                status = true;
-            }
-
-            Task newTask = new Task(name, amount, status);
+            Task newTask = new Task(name, amount, statusValue);
             taskList.add(newTask);
         }
+        */
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -254,5 +249,66 @@ public class TasksFragment extends Fragment {
                 initRecyclerView(taskList);
             }
         });
+    }
+
+    private void sendUpdatedTasks(final JsonObject jsonMessage) {
+        if (pubNub != null && isConnected) {
+            isSenderCall = true;
+
+            Log.d(LOG_TAG, "status(): ConnectedCategory publish initializing...");
+            pubNub.publish().channel(TaskGlideConstants.TASKS_CHANNEL)
+                    .message(jsonMessage)
+                    .async(new PNCallback<PNPublishResult>() {
+                        @Override
+                        public void onResponse(PNPublishResult result, PNStatus status) {
+                            // Check whether request successfully completed or not.
+                            if (!status.isError()) {
+                                Log.d(LOG_TAG, "onResponse(): Response successful: " + status.getStatusCode());
+
+                                SnackbarUtils.displaySnackbar(fragmentTaskLayout,
+                                        getString(R.string.tasks_update_success),
+                                        Snackbar.LENGTH_SHORT,
+                                        ContextCompat.getColor(getContext(), R.color.colorAccent));
+                            }
+                            // Request processing failed.
+                            else {
+                                SnackbarUtils.displaySnackbarWithAction(fragmentTaskLayout,
+                                        getString(R.string.tasks_update_error),
+                                        Snackbar.LENGTH_INDEFINITE,
+                                        ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
+                                        getString(R.string.chat_retry),
+                                        new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                sendUpdatedTasks(jsonMessage);
+                                            }
+                                        });
+                                Log.d(LOG_TAG, "onResponse(): Response failure.");
+                                // Handle message publish error. Check 'category' property to find out possible issue
+                                // because of which request did fail.
+                                //
+                                // Request can be resent using: [status retry];
+                            }
+                        }
+                    });
+        }
+    }
+
+    /** INTERFACE METHODS ______________________________________________________________________ **/
+
+    @Override
+    public void sendUpdatedTaskList(List<Task> taskList) {
+        this.taskList = taskList;
+
+        Tasks tasks = new Tasks(taskList, 0);
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(tasks);
+        Log.d(LOG_TAG, "sendUpdatedTaskList(): Converted Gson JSON String: " + jsonString);
+
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jsonRequest = (JsonObject) jsonParser.parse(jsonString);
+        Log.d(LOG_TAG, "sendUpdatedTaskList(): Converted Json request: " + jsonRequest.toString());
+
+        sendUpdatedTasks(jsonRequest);
     }
 }

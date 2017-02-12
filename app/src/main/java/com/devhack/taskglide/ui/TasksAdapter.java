@@ -12,6 +12,7 @@ import com.devhack.taskglide.R;
 import com.devhack.taskglide.activities.MainActivity;
 import com.devhack.taskglide.models.Task;
 import com.makeramen.roundedimageview.RoundedImageView;
+
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,11 +27,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
     private Context context;
     private List<Task> taskList;
+    private TaskListener taskListener;
 
     /** CONSTRUCTOR METHODS ____________________________________________________________________ **/
 
-    public TasksAdapter(List<Task> taskList, Context context){
+    public TasksAdapter(List<Task> taskList, TaskListener listener, Context context){
         this.taskList = taskList;
+        this.taskListener = listener;
         this.context = context;
     }
 
@@ -42,8 +45,15 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
         TasksViewHolder viewHolder = new TasksViewHolder(view, new TasksViewHolder.OnViewHolderClickListener() {
 
             @Override
-            public void onCheckboxChecked(CompoundButton view, boolean isChecked) {
-
+            public void onCheckboxChecked(CompoundButton view, boolean isChecked, int position) {
+                Task task = taskList.get(position);
+                if (isChecked) {
+                    task.setStatus(1);
+                } else {
+                    task.setStatus(0);
+                }
+                taskList.set(position, task);
+                taskListener.sendUpdatedTaskList(taskList);
             }
 
             @Override
@@ -56,11 +66,15 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
     @Override
     public void onBindViewHolder(TasksViewHolder holder, int position) {
-        boolean isTaskFinished = taskList.get(position).isStatus();
-        String taskDescription = taskList.get(position).getName();
+        int taskStatus = taskList.get(position).getStatus();
+        String taskName = taskList.get(position).getName();
 
-        holder.taskCheckbox.setChecked(isTaskFinished);
-        holder.taskTextView.setText(taskDescription);
+        if (taskStatus == 0) {
+            holder.taskCheckbox.setChecked(false);
+        } else {
+            holder.taskCheckbox.setChecked(true);
+        }
+        holder.taskTextView.setText(taskName);
     }
 
     @Override
@@ -97,12 +111,19 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            viewHolderClickListener.onCheckboxChecked(buttonView, isChecked);
+            int itemPos = getAdapterPosition();
+            viewHolderClickListener.onCheckboxChecked(buttonView, isChecked, itemPos);
         }
 
         public interface OnViewHolderClickListener {
-            void onCheckboxChecked(CompoundButton view, boolean isChecked);
+            void onCheckboxChecked(CompoundButton view, boolean isChecked, int position);
             void onSignClicked(View view, int position);
         }
+    }
+
+    /** INTERFACE ______________________________________________________________________________ **/
+
+    public interface TaskListener {
+        void sendUpdatedTaskList(List<Task> taskList);
     }
 }
