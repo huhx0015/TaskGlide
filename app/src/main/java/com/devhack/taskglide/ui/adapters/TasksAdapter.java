@@ -1,6 +1,8 @@
 package com.devhack.taskglide.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +14,6 @@ import com.devhack.taskglide.R;
 import com.devhack.taskglide.activities.MainActivity;
 import com.devhack.taskglide.models.Task;
 import com.makeramen.roundedimageview.RoundedImageView;
-
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,6 +50,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
                 Task task = taskList.get(position);
                 if (isChecked) {
                     task.setStatus(1);
+                    ((MainActivity) context).displaySignBottomDialog(taskList.get(position));
                 } else {
                     task.setStatus(0);
                 }
@@ -71,15 +73,23 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
         if (taskStatus == 0) {
             holder.taskCheckbox.setChecked(false);
+            holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.black));
         } else {
             holder.taskCheckbox.setChecked(true);
+            holder.taskCheckbox.setEnabled(false);
+            holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
+            holder.taskTextView.setPaintFlags(holder.taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
         holder.taskTextView.setText(taskName);
     }
 
     @Override
     public int getItemCount() {
-        return taskList.size();
+        if (taskList != null) {
+            return taskList.size();
+        } else {
+            return 0;
+        }
     }
 
     /** SUBCLASSES _____________________________________________________________________________ **/

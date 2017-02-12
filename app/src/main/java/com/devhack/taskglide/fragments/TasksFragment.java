@@ -46,7 +46,7 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
     private static final int NUMBER_OF_COLUMNS = 1;
 
-    private boolean isSenderCall = true;
+    private boolean isSenderCall = false;
     private boolean isConnected = false;
     private boolean isViewCreated = false;
     private List<Task> taskList;
@@ -80,14 +80,6 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         super.onDestroy();
         unbinder.unbind();
     }
-
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser && isViewCreated) {
-//            initRecyclerView(taskList);
-//        }
-//    }
 
     /** VIEW METHODS ___________________________________________________________________________ **/
 
@@ -155,6 +147,14 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
                 Log.d(LOG_TAG, "message(): Message callback invoked.");
+                Log.d(LOG_TAG, "message(): Response: " + message.getMessage().toString());
+
+                if (message != null && message.getMessage() != null) {
+
+                    message.getMessage();
+                }
+
+
                 if (!isSenderCall) {
                     getUpdatedTasks(message);
                 } else {
@@ -174,13 +174,19 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
     private void queryAllTasks() {
         if (pubNub != null && isConnected) {
-            JsonObject message = new JsonObject();
-            message.addProperty("name", "don't care");
+
+            Tasks tasks = new Tasks(null, TaskGlideConstants.TASK_UPDATE_2);
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(tasks);
+
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonRequest = (JsonObject) jsonParser.parse(jsonString);
+
             isSenderCall = true;
 
             Log.d(LOG_TAG, "status(): ConnectedCategory publish initializing...");
             pubNub.publish().channel(TaskGlideConstants.TASKS_CHANNEL)
-                    .message(message)
+                    .message(jsonRequest)
                     .async(new PNCallback<PNPublishResult>() {
                         @Override
                         public void onResponse(PNPublishResult result, PNStatus status) {
@@ -225,33 +231,7 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         Tasks tasks = gson.fromJson(result.getMessage(), Tasks.class);
         taskList = tasks.getTasks();
 
-        /*
-        JsonElement jsonElement = result.getMessage();
-        Log.d(LOG_TAG, "getUpdatedTasks(): jsonElement: " + jsonElement.toString());
-
-        JsonObject jsonTask = jsonElement.getAsJsonObject();
-        Log.d(LOG_TAG, "getUpdatedTasks(): jsonTask: " + jsonTask.toString());
-
-        int type = jsonTask.get("type").getAsInt();
-        Log.d(LOG_TAG, "getUpdatedTasks(): type: " + type);
-
-        JsonArray jsonArray = jsonTask.get("tasks").getAsJsonArray();
-        Log.d(LOG_TAG, "getUpdatedTasks(): jsonArray: " + jsonArray.toString());
-
-        taskList = new LinkedList<>();
-        for (JsonElement element : jsonArray) {
-            JsonObject taskObject = element.getAsJsonObject();
-
-            String name = taskObject.get("name").toString();
-            String amount = taskObject.get("amount").toString();
-            int statusValue = taskObject.get("status").getAsInt();
-
-            Task newTask = new Task(name, amount, statusValue);
-            taskList.add(newTask);
-        }
-        */
-
-        if (isVisible()) {
+        if (isVisible() && taskList != null && taskList.size() > 0) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

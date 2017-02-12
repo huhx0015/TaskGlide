@@ -8,7 +8,7 @@
         android:id="@+id/sign_button"
         android:background="@drawable/selector_action_button"
         android:layout_height="wrap_content"
-        android:text="SIGN DOCUMENT"
+        android:text="CONFIRM"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:gravity="center_vertical|center_horizontal|center"
