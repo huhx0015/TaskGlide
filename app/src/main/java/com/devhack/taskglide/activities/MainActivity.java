@@ -1,29 +1,35 @@
 package com.devhack.taskglide.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.pubnub.PubNubUtils;
-
+import com.devhack.taskglide.ui.TaskGlidePagerAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    @BindView(R.id.drawer_layout) DrawerLayout drawer;
-    @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.nav_view) NavigationView navigationView;
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    @BindView(R.id.drawer_layout) DrawerLayout activityDrawer;
+    @BindView(R.id.nav_view) NavigationView activityNavigationView;
+    @BindView(R.id.activity_main_tabs) TabLayout activityTabLayout;
+    @BindView(R.id.toolbar) Toolbar activityToolbar;
+    @BindView(R.id.activity_main_viewpager) ViewPager activityViewPager;
+
+    /** ACTIVITY LIFECYCLE METHODS _____________________________________________________________ **/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         PubNubUtils.initPubNub(this); // Initializes PubNub.
     }
+
+    /** ACTIVITY OVERRIDE METHODS ______________________________________________________________ **/
 
     @Override
     public void onBackPressed() {
@@ -92,32 +100,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initView() {
         initToolbar();
-        initFab();
         initDrawer();
+        initViewPager();
+        initTabs();
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-    }
-
-    private void initFab() {
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
+        setSupportActionBar(activityToolbar);
     }
 
     private void initDrawer() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, activityDrawer, activityToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        activityDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView.setNavigationItemSelectedListener(this);
+        activityNavigationView.setNavigationItemSelectedListener(this);
     }
 
-    /** **/
+    private void initTabs() {
+        activityTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Log.d(LOG_TAG, "onTabSelected(): " + tab.getPosition());
+                setCurrentPage(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    private void initViewPager() {
+        PagerAdapter bossPagerAdapter = new TaskGlidePagerAdapter(getSupportFragmentManager(), this);
+        activityViewPager.setAdapter(bossPagerAdapter);
+
+        ViewPager.SimpleOnPageChangeListener pageListener = new ViewPager.SimpleOnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int position) {
+                // TODO: Do something.
+            }
+        };
+        activityViewPager.addOnPageChangeListener(pageListener);
+        activityTabLayout.setupWithViewPager(activityViewPager);
+    }
+
+    private void setCurrentPage(int page) {
+        activityViewPager.setCurrentItem(page, false);
+    }
 }
