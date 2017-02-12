@@ -29,7 +29,7 @@ public class FilesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View fragment_view = inflater.inflate(R.layout.fragment_files, container, false);
+        View fragment_view = inflater.inflate(R.layout.fragment_list, container, false);
         unbinder = ButterKnife.bind(this, fragment_view);
         return fragment_view;
     }
