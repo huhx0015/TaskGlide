@@ -82,14 +82,8 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
     /** VIEW METHODS ___________________________________________________________________________ **/
 
     private void initView() {
-
-        // TODO: Change list of tasks later, once network response is completed.
-//        taskList = new LinkedList<>();
-//        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", 0));
-//        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", 0));
-//        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", 0));
-//        taskList.add(new Task("Wedding Photos", "$10000", 0));
-        //initRecyclerView(taskList);
+        // TODO: Mock data used for UI testing.
+        //loadDummyData();
     }
 
     private void initRecyclerView(List<Task> taskList) {
@@ -98,6 +92,15 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
         TasksAdapter adapter = new TasksAdapter(taskList, this, getContext());
         fragmentRecyclerView.setAdapter(adapter);
+    }
+
+    private void loadDummyData() {
+        taskList = new LinkedList<>();
+        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", 0));
+        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", 0));
+        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", 0));
+        taskList.add(new Task("Wedding Photos", "$10000", 0));
+        initRecyclerView(taskList);
     }
 
     /** PUBNUB METHODS _________________________________________________________________________ **/
