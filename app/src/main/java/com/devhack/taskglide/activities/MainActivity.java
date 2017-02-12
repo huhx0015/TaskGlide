@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.dialogs.ImagePreviewDialog;
+import com.devhack.taskglide.dialogs.SignBottomDialog;
+import com.devhack.taskglide.models.Task;
 import com.devhack.taskglide.pubnub.PubNubUtils;
 import com.devhack.taskglide.ui.TaskGlidePagerAdapter;
 import butterknife.BindView;
@@ -164,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         imagePreviewDialog.show(fragmentManager, ImagePreviewDialog.class.getSimpleName());
     }
 
-    public void displayBottomDialog() {
-
+    public void displaySignBottomDialog(Task task) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SignBottomDialog bossMenuBottomDialog = SignBottomDialog.newInstance(task);
+        bossMenuBottomDialog.show(fragmentManager, SignBottomDialog.class.getSimpleName());
     }
 }

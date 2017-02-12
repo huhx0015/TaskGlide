@@ -1,7 +1,6 @@
 package com.devhack.taskglide.ui;
 
 import android.content.Context;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import com.devhack.taskglide.R;
+import com.devhack.taskglide.activities.MainActivity;
 import com.devhack.taskglide.models.Task;
 import com.makeramen.roundedimageview.RoundedImageView;
-
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,7 +48,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
             @Override
             public void onSignClicked(View view, int position) {
-
+                ((MainActivity) context).displaySignBottomDialog(taskList.get(position));
             }
         });
         return viewHolder;
