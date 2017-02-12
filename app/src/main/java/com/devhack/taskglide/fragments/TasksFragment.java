@@ -48,7 +48,6 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
     private boolean isSenderCall = false;
     private boolean isConnected = false;
-    private boolean isViewCreated = false;
     private List<Task> taskList;
     private PubNub pubNub;
     private Unbinder unbinder;
@@ -71,7 +70,6 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         unbinder = ButterKnife.bind(this, fragment_view);
         initView();
         initPubNubConnection();
-        isViewCreated = true;
         return fragment_view;
     }
 
@@ -86,13 +84,12 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
     private void initView() {
 
         // TODO: Change list of tasks later, once network response is completed.
-        taskList = new LinkedList<>();
-        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", 0));
-        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", 0));
-        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", 0));
-        taskList.add(new Task("Wedding Photos", "$10000", 0));
-
-        initRecyclerView(taskList);
+//        taskList = new LinkedList<>();
+//        taskList.add(new Task("Couple Photos at Golden Gate Park", "$1000", 0));
+//        taskList.add(new Task("Family Photos at Engagement Party at Palace of Fine Arts", "$2000", 0));
+//        taskList.add(new Task("Wedding Rehearsal Photos", "$3000", 0));
+//        taskList.add(new Task("Wedding Photos", "$10000", 0));
+        //initRecyclerView(taskList);
     }
 
     private void initRecyclerView(List<Task> taskList) {
@@ -150,10 +147,8 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
                 Log.d(LOG_TAG, "message(): Response: " + message.getMessage().toString());
 
                 if (message != null && message.getMessage() != null) {
-
                     message.getMessage();
                 }
-
 
                 if (!isSenderCall) {
                     getUpdatedTasks(message);
@@ -194,24 +189,29 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
                             if (!status.isError()) {
                                 Log.d(LOG_TAG, "onResponse(): Response successful: " + status.getStatusCode());
 
-                                SnackbarUtils.displaySnackbar(fragmentTaskLayout,
-                                        getString(R.string.tasks_update_success),
-                                        Snackbar.LENGTH_SHORT,
-                                        ContextCompat.getColor(getContext(), R.color.colorAccent));
+                                if (isVisible()) {
+                                    SnackbarUtils.displaySnackbar(fragmentTaskLayout,
+                                            getString(R.string.tasks_update_success),
+                                            Snackbar.LENGTH_SHORT,
+                                            ContextCompat.getColor(getContext(), R.color.colorAccent));
+                                }
                             }
                             // Request processing failed.
                             else {
-                                SnackbarUtils.displaySnackbarWithAction(fragmentTaskLayout,
-                                        getString(R.string.tasks_update_error),
-                                        Snackbar.LENGTH_INDEFINITE,
-                                        ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
-                                        getString(R.string.chat_retry),
-                                        new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                queryAllTasks();
-                                            }
-                                        });
+
+                                if (isVisible()) {
+                                    SnackbarUtils.displaySnackbarWithAction(fragmentTaskLayout,
+                                            getString(R.string.tasks_update_error),
+                                            Snackbar.LENGTH_INDEFINITE,
+                                            ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
+                                            getString(R.string.chat_retry),
+                                            new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    queryAllTasks();
+                                                }
+                                            });
+                                }
                                 Log.d(LOG_TAG, "onResponse(): Response failure.");
                                 // Handle message publish error. Check 'category' property to find out possible issue
                                 // because of which request did fail.
@@ -229,15 +229,18 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
         Gson gson = new Gson();
         Tasks tasks = gson.fromJson(result.getMessage(), Tasks.class);
+        int type = tasks.getType();
         taskList = tasks.getTasks();
 
-        if (isVisible() && taskList != null && taskList.size() > 0) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    initRecyclerView(taskList);
-                }
-            });
+        if (type == 1 || type == 2) {
+            if (isVisible() && taskList != null && taskList.size() > 0) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initRecyclerView(taskList);
+                    }
+                });
+            }
         }
     }
 
@@ -255,24 +258,29 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
                             if (!status.isError()) {
                                 Log.d(LOG_TAG, "onResponse(): Response successful: " + status.getStatusCode());
 
-                                SnackbarUtils.displaySnackbar(fragmentTaskLayout,
-                                        getString(R.string.tasks_update_success),
-                                        Snackbar.LENGTH_SHORT,
-                                        ContextCompat.getColor(getContext(), R.color.colorAccent));
+                                if (isVisible()) {
+                                    SnackbarUtils.displaySnackbar(fragmentTaskLayout,
+                                            getString(R.string.tasks_update_success),
+                                            Snackbar.LENGTH_SHORT,
+                                            ContextCompat.getColor(getContext(), R.color.colorAccent));
+                                }
                             }
                             // Request processing failed.
                             else {
-                                SnackbarUtils.displaySnackbarWithAction(fragmentTaskLayout,
-                                        getString(R.string.tasks_update_error),
-                                        Snackbar.LENGTH_INDEFINITE,
-                                        ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
-                                        getString(R.string.chat_retry),
-                                        new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                sendUpdatedTasks(jsonMessage);
-                                            }
-                                        });
+
+                                if (isVisible()) {
+                                    SnackbarUtils.displaySnackbarWithAction(fragmentTaskLayout,
+                                            getString(R.string.tasks_update_error),
+                                            Snackbar.LENGTH_INDEFINITE,
+                                            ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
+                                            getString(R.string.chat_retry),
+                                            new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    sendUpdatedTasks(jsonMessage);
+                                                }
+                                            });
+                                }
                                 Log.d(LOG_TAG, "onResponse(): Response failure.");
                                 // Handle message publish error. Check 'category' property to find out possible issue
                                 // because of which request did fail.
@@ -290,7 +298,7 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
     public void sendUpdatedTaskList(List<Task> taskList) {
         this.taskList = taskList;
 
-        Tasks tasks = new Tasks(taskList, 0);
+        Tasks tasks = new Tasks(taskList, TaskGlideConstants.TASK_UPDATE_2);
         Gson gson = new Gson();
         String jsonString = gson.toJson(tasks);
         Log.d(LOG_TAG, "sendUpdatedTaskList(): Converted Gson JSON String: " + jsonString);

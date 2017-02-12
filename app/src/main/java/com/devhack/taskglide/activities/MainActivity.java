@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
         activityViewPager.addOnPageChangeListener(pageListener);
+        activityViewPager.setOffscreenPageLimit(3);
         activityTabLayout.setupWithViewPager(activityViewPager);
     }
 

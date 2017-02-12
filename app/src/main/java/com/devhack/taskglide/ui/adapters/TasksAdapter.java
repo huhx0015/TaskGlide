@@ -50,7 +50,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
                 Task task = taskList.get(position);
                 if (isChecked) {
                     task.setStatus(1);
-                    ((MainActivity) context).displaySignBottomDialog(taskList.get(position));
+                    //((MainActivity) context).displaySignBottomDialog(taskList.get(position));
                 } else {
                     task.setStatus(0);
                 }
@@ -70,11 +70,12 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
     public void onBindViewHolder(TasksViewHolder holder, int position) {
         int taskStatus = taskList.get(position).getStatus();
         String taskName = taskList.get(position).getName();
+        taskName = taskName.replace("_", " ");
 
-        if (taskStatus == 0) {
+        if (taskStatus == 0 || taskStatus == -1) {
             holder.taskCheckbox.setChecked(false);
             holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.black));
-        } else {
+        } else if (taskStatus == 1){
             holder.taskCheckbox.setChecked(true);
             holder.taskCheckbox.setEnabled(false);
             holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
