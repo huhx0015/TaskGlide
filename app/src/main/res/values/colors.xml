@@ -3,6 +3,8 @@
     <color name="colorPrimary">#ec1491</color>
     <color name="colorPrimaryDark">#784090</color>
     <color name="colorAccent">#9f57bf</color>
+    <color name="buttonSelectColor">#e5acff</color>
+    <color name="chatInputColor">#F3E5F5</color>
 
     <!--TOOLBAR COLOR-->
     <color name="toolbarColor">#333333</color>

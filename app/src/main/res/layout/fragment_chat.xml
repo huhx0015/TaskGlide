@@ -4,12 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:text="CHAT"
-        android:textSize="20sp"
-        android:layout_centerInParent="true"
-        android:textColor="@android:color/black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/chat_bottom_container"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="8dp"
+        android:background="@color/chatInputColor"
+        android:elevation="8dp">
+
+        <EditText
+            android:id="@+id/chat_input_text"
+            android:textColor="@android:color/black"
+            android:hint="Type message..."
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp" />
+
+        <ImageButton
+            android:id="@+id/chat_send_message_button"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_send_white_48px"
+            android:background="@drawable/selector_action_button"
+            android:layout_width="56dp"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
 
 </RelativeLayout>
