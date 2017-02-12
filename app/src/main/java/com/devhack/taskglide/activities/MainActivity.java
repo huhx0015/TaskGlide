@@ -19,7 +19,7 @@ import com.devhack.taskglide.R;
 import com.devhack.taskglide.dialogs.ImagePreviewDialog;
 import com.devhack.taskglide.dialogs.SignBottomDialog;
 import com.devhack.taskglide.models.Task;
-import com.devhack.taskglide.ui.TaskGlidePagerAdapter;
+import com.devhack.taskglide.ui.adapters.TaskGlidePagerAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 

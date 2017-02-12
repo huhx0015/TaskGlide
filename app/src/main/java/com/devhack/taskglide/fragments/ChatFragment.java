@@ -1,5 +1,6 @@
 package com.devhack.taskglide.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.constants.TaskGlideConstants;
 import com.devhack.taskglide.models.Message;
+import com.devhack.taskglide.ui.views.MessageView;
 import com.devhack.taskglide.utils.PubNubUtils;
 import com.devhack.taskglide.utils.SnackbarUtils;
 import com.google.gson.Gson;
@@ -94,11 +97,16 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                // Hides the soft keyboard.
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(fragmentChatLayout.getWindowToken(), 0);
+
                 if (pubNub != null && isConnected) {
 
                     JsonObject message = new JsonObject();
                     message.addProperty("user", getString(R.string.demo_user_name));
                     message.addProperty("message", messageInputField.getText().toString());
+                    Log.d(LOG_TAG, "initButtons(): JsonObject conversion: " + message.toString());
 
                     Log.d(LOG_TAG, "status(): ConnectedCategory publish initializing...");
                     pubNub.publish().channel(TaskGlideConstants.TUTORIAL_CHANNEL)
@@ -186,8 +194,12 @@ public class ChatFragment extends Fragment {
 
                 JsonElement messageElement = message.getMessage();
                 Gson gson = new Gson();
-                Message receivedMessage = gson.fromJson(messageElement, Message.class);
-                final String messageString = receivedMessage.getUser() + ": " + receivedMessage.getMessage();
+                final Message receivedMessage = gson.fromJson(messageElement, Message.class);
+
+                boolean isMe = false;
+                if (receivedMessage.getUser().equals(getString(R.string.demo_user_name))) {
+                    isMe = true;
+                }
 
 //                JsonObject messageObject = messageElement.getAsJsonObject();
 //                String messageUser = messageObject.get("user").toString() + ": ";
@@ -197,10 +209,11 @@ public class ChatFragment extends Fragment {
 //                final String messageString = messageUser + messageMessage;
 
                 if (isVisible()) {
+                    final boolean finalIsMe = isMe;
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            getChatResponse(messageString);
+                            getChatResponse(receivedMessage.getMessage(), receivedMessage.getUser(), finalIsMe);
                         }
                     });
                 }
@@ -216,17 +229,9 @@ public class ChatFragment extends Fragment {
         PubNubUtils.initPubNub(callback, TaskGlideConstants.TUTORIAL_CHANNEL, getContext());
     }
 
-    private void getChatResponse(String response) {
-
-        TextView messageText = new TextView(getContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        messageText.setLayoutParams(params);
-
-        messageText.setText(response);
-        messageText.setTextSize(14);
-        messageText.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
-
-        chatMessageContainer.addView(messageText);
+    private void getChatResponse(String response, String user, boolean isMe) {
+        MessageView messageView = new MessageView(response, isMe, user, getContext());
+        chatMessageContainer.addView(messageView);
     }
 
     private void getChatHistory() {

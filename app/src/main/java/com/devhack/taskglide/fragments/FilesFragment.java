@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.models.File;
-import com.devhack.taskglide.ui.FilesAdapter;
+import com.devhack.taskglide.ui.adapters.FilesAdapter;
 import java.util.LinkedList;
 import java.util.List;
 import butterknife.BindView;

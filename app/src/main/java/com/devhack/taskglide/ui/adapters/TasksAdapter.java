@@ -1,4 +1,4 @@
-package com.devhack.taskglide.ui;
+package com.devhack.taskglide.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatCheckBox;
