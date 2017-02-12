@@ -14,7 +14,7 @@
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:scaleType="fitCenter"
-        android:src="@android:drawable/sym_def_app_icon"
+        android:src="@drawable/profile_avatar"
         android:background="@android:color/white"
         app:riv_corner_radius="30dip"
         app:riv_mutate_background="true"
@@ -27,13 +27,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Jane Doe"
+        android:text="Jonathan Smithely"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="janedoe@gmail.com" />
+        android:text="typicalhipstersf@gmail.com" />
 
 </LinearLayout>

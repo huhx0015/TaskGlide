@@ -46,6 +46,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
 
     // IMAGE LIBRARIES
+    compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.6.0'
     compile 'com.makeramen:roundedimageview:2.3.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
 

@@ -3,6 +3,7 @@ package com.devhack.taskglide.activities;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.devhack.taskglide.R;
+import com.devhack.taskglide.dialogs.ImagePreviewDialog;
 import com.devhack.taskglide.pubnub.PubNubUtils;
 import com.devhack.taskglide.ui.TaskGlidePagerAdapter;
 import butterknife.BindView;
@@ -78,18 +80,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_tasks) {
+            setCurrentPage(0);
+        } else if (id == R.id.nav_messages) {
+            setCurrentPage(1);
+        } else if (id == R.id.nav_files) {
+            setCurrentPage(2);
+        } else if (id == R.id.nav_account) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_logout) {
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -154,5 +154,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setCurrentPage(int page) {
         activityViewPager.setCurrentItem(page, false);
+    }
+
+    /** DIALOG METHODS _________________________________________________________________________ **/
+
+    public void displayImagePreview(int imageResource) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ImagePreviewDialog imagePreviewDialog = ImagePreviewDialog.newInstance(imageResource);
+        imagePreviewDialog.show(fragmentManager, ImagePreviewDialog.class.getSimpleName());
+    }
+
+    public void displayBottomDialog() {
+
     }
 }
