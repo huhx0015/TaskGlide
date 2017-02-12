@@ -1,7 +1,12 @@
 package com.devhack.taskglide.application;
 
 import android.app.Application;
-
+import com.devhack.taskglide.R;
+import com.devhack.taskglide.constants.TaskGlideConstants;
+import com.devhack.taskglide.interfaces.ApiComponent;
+import com.devhack.taskglide.interfaces.DaggerApiComponent;
+import com.devhack.taskglide.module.ApplicationModule;
+import com.devhack.taskglide.module.NetworkModule;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
@@ -11,24 +16,29 @@ import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-
 import java.util.Arrays;
 
 public class TaskGlideApplication extends Application {
+
+    private ApiComponent apiComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // DAGGER 2:
+        apiComponent = DaggerApiComponent.builder()
+                .applicationModule(new ApplicationModule(this))
+                .networkModule(new NetworkModule(TaskGlideConstants.SANDBOX_URL))
+                .build();
+
         initPubNub();
     }
 
     private void initPubNub() {
-
         PNConfiguration pnConfiguration = new PNConfiguration();
-        pnConfiguration.setSubscribeKey("demo");
-        pnConfiguration.setPublishKey("demo");
-
+        pnConfiguration.setSubscribeKey(getString(R.string.pubnub_subscribe_key));
+        pnConfiguration.setPublishKey(getString(R.string.pubnub_publish_key));
         PubNub pubnub = new PubNub(pnConfiguration);
 
         pubnub.addListener(new SubscribeCallback() {
@@ -105,6 +115,10 @@ public class TaskGlideApplication extends Application {
             }
         });
 
-        pubnub.subscribe().channels(Arrays.asList("awesomeChannel")).execute();
+        pubnub.subscribe().channels(Arrays.asList(TaskGlideConstants.PUBNUB_CHANNEL)).execute();
+    }
+
+    public ApiComponent getApiComponent() {
+        return apiComponent;
     }
 }
