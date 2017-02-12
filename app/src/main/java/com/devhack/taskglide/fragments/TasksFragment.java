@@ -50,6 +50,7 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
 
     private boolean isSenderCall = true;
     private boolean isConnected = false;
+    private boolean isViewCreated = false;
     private List<Task> taskList;
     private PubNub pubNub;
     private Unbinder unbinder;
@@ -72,6 +73,7 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         unbinder = ButterKnife.bind(this, fragment_view);
         initView();
         initPubNubConnection();
+        isViewCreated = true;
         return fragment_view;
     }
 
@@ -80,6 +82,14 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         super.onDestroy();
         unbinder.unbind();
     }
+
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        super.setUserVisibleHint(isVisibleToUser);
+//        if (isVisibleToUser && isViewCreated) {
+//            initRecyclerView(taskList);
+//        }
+//    }
 
     /** VIEW METHODS ___________________________________________________________________________ **/
 
@@ -243,12 +253,14 @@ public class TasksFragment extends Fragment implements TasksAdapter.TaskListener
         }
         */
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                initRecyclerView(taskList);
-            }
-        });
+        if (isVisible()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    initRecyclerView(taskList);
+                }
+            });
+        }
     }
 
     private void sendUpdatedTasks(final JsonObject jsonMessage) {

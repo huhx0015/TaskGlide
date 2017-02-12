@@ -78,6 +78,11 @@ public class ChatFragment extends Fragment {
         unbinder.unbind();
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+    }
+
     /** VIEW METHODS ___________________________________________________________________________ **/
 
     private void initView() {
@@ -191,12 +196,14 @@ public class ChatFragment extends Fragment {
 //                messageMessage = messageMessage.replace("\"", "");
 //                final String messageString = messageUser + messageMessage;
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getChatResponse(messageString);
-                    }
-                });
+                if (isVisible()) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getChatResponse(messageString);
+                        }
+                    });
+                }
             }
 
             @Override
