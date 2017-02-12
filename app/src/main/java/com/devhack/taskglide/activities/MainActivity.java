@@ -19,7 +19,6 @@ import com.devhack.taskglide.R;
 import com.devhack.taskglide.dialogs.ImagePreviewDialog;
 import com.devhack.taskglide.dialogs.SignBottomDialog;
 import com.devhack.taskglide.models.Task;
-import com.devhack.taskglide.pubnub.PubNubUtils;
 import com.devhack.taskglide.ui.TaskGlidePagerAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,10 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         initView();
-
-        PubNubUtils.initPubNub(this); // Initializes PubNub.
     }
 
     /** ACTIVITY OVERRIDE METHODS ______________________________________________________________ **/

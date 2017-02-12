@@ -2,11 +2,34 @@ package com.devhack.taskglide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.devhack.taskglide.R;
+import com.devhack.taskglide.constants.TaskGlideConstants;
+import com.devhack.taskglide.utils.PubNubUtils;
+import com.devhack.taskglide.utils.SnackbarUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.history.PNHistoryResult;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -16,7 +39,16 @@ import butterknife.Unbinder;
 
 public class ChatFragment extends Fragment {
 
+    private static final String LOG_TAG = ChatFragment.class.getSimpleName();
+
+    private boolean isConnected = false;
+    private PubNub pubNub;
     private Unbinder unbinder;
+
+    @BindView(R.id.chat_message_container) LinearLayout chatMessageContainer;
+    @BindView(R.id.fragment_chat_layout) LinearLayout fragmentChatLayout;
+    @BindView(R.id.chat_send_message_button) ImageButton sendMessageButton;
+    @BindView(R.id.chat_input_text) EditText messageInputField;
 
     /** CONSTRUCTOR METHODS ____________________________________________________________________ **/
 
@@ -31,6 +63,10 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragment_view = inflater.inflate(R.layout.fragment_chat, container, false);
         unbinder = ButterKnife.bind(this, fragment_view);
+
+        initView();
+        initPubNubConnection();
+
         return fragment_view;
     }
 
@@ -38,5 +74,158 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    /** VIEW METHODS ___________________________________________________________________________ **/
+
+    private void initView() {
+        initButtons();
+    }
+
+    private void initButtons() {
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (pubNub != null && isConnected) {
+
+                    JsonObject message = new JsonObject();
+                    message.addProperty("user", getString(R.string.demo_user_name));
+                    message.addProperty("message", messageInputField.getText().toString());
+
+                    Log.d(LOG_TAG, "status(): ConnectedCategory publish initializing...");
+                    pubNub.publish().channel(TaskGlideConstants.TUTORIAL_CHANNEL)
+                            .message(message)
+                            .async(new PNCallback<PNPublishResult>() {
+                                @Override
+                                public void onResponse(PNPublishResult result, PNStatus status) {
+                                    // Check whether request successfully completed or not.
+                                    if (!status.isError()) {
+                                        Log.d(LOG_TAG, "onResponse(): Response successful: " + status.getStatusCode());
+                                        messageInputField.setText("");
+                                        SnackbarUtils.displaySnackbar(fragmentChatLayout,
+                                                getString(R.string.chat_send_success),
+                                                Snackbar.LENGTH_SHORT,
+                                                ContextCompat.getColor(getContext(), R.color.colorAccent));
+                                    }
+                                    // Request processing failed.
+                                    else {
+                                        SnackbarUtils.displaySnackbarWithAction(fragmentChatLayout,
+                                                getString(R.string.chat_send_error),
+                                                Snackbar.LENGTH_INDEFINITE,
+                                                ContextCompat.getColor(getContext(), android.R.color.holo_red_light),
+                                                getString(R.string.chat_retry),
+                                                new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                sendMessageButton.performClick();
+                                            }
+                                        });
+                                        Log.d(LOG_TAG, "onResponse(): Response failure.");
+                                        // Handle message publish error. Check 'category' property to find out possible issue
+                                        // because of which request did fail.
+                                        //
+                                        // Request can be resent using: [status retry];
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+    }
+
+    /** PUBNUB METHODS _________________________________________________________________________ **/
+
+    private void initPubNubConnection() {
+        SubscribeCallback callback = new SubscribeCallback() {
+
+            @Override
+            public void status(PubNub pubnub, PNStatus status) {
+
+                Log.d(LOG_TAG, "status(): Status callback called: " + status.getStatusCode());
+
+                if (status.getCategory() == PNStatusCategory.PNUnexpectedDisconnectCategory) {
+                    Log.d(LOG_TAG, "status(): UnexpectedDisconnectCategory");
+                    // This event happens when radio / connectivity is lost
+                }
+
+                else if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
+
+                    Log.d(LOG_TAG, "status(): ConnectedCategory");
+                    // Connect event. You can do stuff like publish, and know you'll get it.
+                    // Or just use the connected event to confirm you are subscribed for
+                    // UI / internal notifications, etc
+
+                    if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
+                        pubNub = pubnub;
+                        isConnected = true;
+                    }
+                }
+                else if (status.getCategory() == PNStatusCategory.PNReconnectedCategory) {
+                    Log.d(LOG_TAG, "status(): Reconnected category.");
+                    // Happens as part of our regular operation. This event happens when
+                    // radio / connectivity is lost, then regained.
+                }
+                else if (status.getCategory() == PNStatusCategory.PNDecryptionErrorCategory) {
+                    Log.d(LOG_TAG, "status(): DecryptionErrorCategory");
+                    // Handle messsage decryption error. Probably client configured to
+                    // encrypt messages and on live data feed it received plain text.
+                }
+            }
+
+            @Override
+            public void message(PubNub pubnub, PNMessageResult message) {
+                Log.d(LOG_TAG, "message(): Message callback invoked.");
+
+
+                JsonElement messageElement = message.getMessage();
+                JsonObject messageObject = messageElement.getAsJsonObject();
+
+                final String messageUser = messageObject.get("user").toString() + ": ";
+                final String messageMessage = messageObject.get("message").toString();
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getChatResponse(messageUser + messageMessage);
+                    }
+                });
+            }
+
+            @Override
+            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+                Log.d(LOG_TAG, "presence(): Presence callback invoked.");
+                // handle incoming presence data
+            }
+        };
+
+        PubNubUtils.initPubNub(callback, getContext());
+    }
+
+    private void getChatResponse(String response) {
+
+        TextView messageText = new TextView(getContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        messageText.setLayoutParams(params);
+
+        messageText.setText(response);
+        messageText.setTextSize(14);
+        messageText.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
+
+        chatMessageContainer.addView(messageText);
+    }
+
+    private void getChatHistory() {
+
+        pubNub.history()
+                .channel(TaskGlideConstants.TUTORIAL_CHANNEL) // where to fetch history from
+                .count(100) // how many items to fetch
+                .async(new PNCallback<PNHistoryResult>() {
+                    @Override
+                    public void onResponse(PNHistoryResult result, PNStatus status) {
+
+                    }
+                });
+
     }
 }

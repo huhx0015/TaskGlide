@@ -10,8 +10,16 @@
     <!--ACTION STRINGS-->
     <string name="action_settings">Settings</string>
 
+    <!--USER STRINGS-->
+    <string name="demo_user_name">Jonathan Smithely</string>
+
     <!--TAB STRINGS-->
     <string name="tab_tasks">TASKS</string>
     <string name="tab_chat">CHAT</string>
     <string name="tab_files">FILES</string>
+
+    <!--CHAT STRINGS-->
+    <string name="chat_send_success">Message sent.</string>
+    <string name="chat_retry">RETRY</string>
+    <string name="chat_send_error">An error occurred while attempting to send a message.</string>
 </resources>
