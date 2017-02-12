@@ -1,4 +1,4 @@
-package com.devhack.taskglide.taskglide;
+package com.devhack.taskglide;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
