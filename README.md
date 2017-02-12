@@ -13,8 +13,6 @@ Location: San Francisco, California, U.S.A.
 
 Date: February 11 - 12, 2017
 
-Website: 
-
 Project Website: http://accelerate.im/projects/702
 
 Event Website: http://www.developerweek.com/hackathon/
