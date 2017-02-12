@@ -3,6 +3,7 @@ package com.devhack.taskglide.activities;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -106,7 +107,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initToolbar() {
+        activityToolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.toolbarColor));
         setSupportActionBar(activityToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     private void initDrawer() {
