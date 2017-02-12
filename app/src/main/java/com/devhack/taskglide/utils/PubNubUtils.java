@@ -18,7 +18,7 @@ public class PubNubUtils {
 
     private static final String LOG_TAG = PubNubUtils.class.getSimpleName();
 
-    public static void initPubNub(SubscribeCallback callback, Context context) {
+    public static void initPubNub(SubscribeCallback callback, String channel, Context context) {
         Log.d(LOG_TAG, "initPubNub(): Initializing PubNub connection.");
 
         PNConfiguration pnConfiguration = new PNConfiguration();
@@ -27,6 +27,6 @@ public class PubNubUtils {
         PubNub pubnub = new PubNub(pnConfiguration);
 
         pubnub.addListener(callback);
-        pubnub.subscribe().channels(Arrays.asList(TaskGlideConstants.TUTORIAL_CHANNEL)).execute();
+        pubnub.subscribe().channels(Arrays.asList(channel)).execute();
     }
 }

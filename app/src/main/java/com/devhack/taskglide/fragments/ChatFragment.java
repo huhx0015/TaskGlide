@@ -177,17 +177,19 @@ public class ChatFragment extends Fragment {
             public void message(PubNub pubnub, PNMessageResult message) {
                 Log.d(LOG_TAG, "message(): Message callback invoked.");
 
-
                 JsonElement messageElement = message.getMessage();
                 JsonObject messageObject = messageElement.getAsJsonObject();
 
-                final String messageUser = messageObject.get("user").toString() + ": ";
-                final String messageMessage = messageObject.get("message").toString();
+                String messageUser = messageObject.get("user").toString() + ": ";
+                messageUser = messageUser.replace("\"", "");
+                String messageMessage = messageObject.get("message").toString();
+                messageMessage = messageMessage.replace("\"", "");
+                final String messageString = messageUser + messageMessage;
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        getChatResponse(messageUser + messageMessage);
+                        getChatResponse(messageString);
                     }
                 });
             }
@@ -199,7 +201,7 @@ public class ChatFragment extends Fragment {
             }
         };
 
-        PubNubUtils.initPubNub(callback, getContext());
+        PubNubUtils.initPubNub(callback, TaskGlideConstants.TUTORIAL_CHANNEL, getContext());
     }
 
     private void getChatResponse(String response) {
@@ -226,6 +228,5 @@ public class ChatFragment extends Fragment {
 
                     }
                 });
-
     }
 }

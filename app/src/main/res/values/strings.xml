@@ -22,4 +22,8 @@
     <string name="chat_send_success">Message sent.</string>
     <string name="chat_retry">RETRY</string>
     <string name="chat_send_error">An error occurred while attempting to send a message.</string>
+
+    <!--TASK STRINGS-->
+    <string name="tasks_update_success">Tasks updated!</string>
+    <string name="tasks_update_error">An error occurred while attempting to update the task list.</string>
 </resources>

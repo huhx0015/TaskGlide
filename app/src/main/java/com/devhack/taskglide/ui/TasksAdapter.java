@@ -56,8 +56,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
 
     @Override
     public void onBindViewHolder(TasksViewHolder holder, int position) {
-        boolean isTaskFinished = taskList.get(position).isFinished();
-        String taskDescription = taskList.get(position).getTaskDescription();
+        boolean isTaskFinished = taskList.get(position).isStatus();
+        String taskDescription = taskList.get(position).getName();
 
         holder.taskCheckbox.setChecked(isTaskFinished);
         holder.taskTextView.setText(taskDescription);

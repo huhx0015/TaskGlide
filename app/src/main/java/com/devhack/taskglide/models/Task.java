@@ -6,26 +6,29 @@ package com.devhack.taskglide.models;
 
 public class Task {
 
-    private boolean isFinished;
-    private String taskDescription;
+    private boolean status;
+    private String amount;
+    private String name;
 
-    public Task(String taskDescription) {
-        this.taskDescription = taskDescription;
+    public Task(String taskName, String taskAmount, boolean status) {
+        this.name = taskName;
+        this.amount = taskAmount;
+        this.status = status;
     }
 
-    public boolean isFinished() {
-        return isFinished;
+    public boolean isStatus() {
+        return status;
     }
 
-    public void setFinished(boolean finished) {
-        isFinished = finished;
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
-    public void setTaskDescription(String taskDescription) {
-        this.taskDescription = taskDescription;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getTaskDescription() {
-        return taskDescription;
+    public String getName() {
+        return name;
     }
 }
