@@ -14,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.constants.TaskGlideConstants;
 import com.devhack.taskglide.models.Message;
@@ -174,6 +173,10 @@ public class ChatFragment extends Fragment {
                     if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
                         pubNub = pubnub;
                         isConnected = true;
+
+                        if (pubnub != null) {
+                            PubNubUtils.setPushNotificationListener(pubNub, TaskGlideConstants.TUTORIAL_CHANNEL);
+                        }
                     }
                 }
                 else if (status.getCategory() == PNStatusCategory.PNReconnectedCategory) {

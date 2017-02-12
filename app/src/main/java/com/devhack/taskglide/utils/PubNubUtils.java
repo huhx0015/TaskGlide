@@ -1,12 +1,17 @@
 package com.devhack.taskglide.utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import com.devhack.taskglide.R;
 import com.devhack.taskglide.constants.TaskGlideConstants;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNPushType;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.push.PNPushAddChannelResult;
 
 import java.util.Arrays;
 
@@ -28,5 +33,18 @@ public class PubNubUtils {
 
         pubnub.addListener(callback);
         pubnub.subscribe().channels(Arrays.asList(channel)).execute();
+    }
+
+    public static void setPushNotificationListener(PubNub pubNub, String channel) {
+        pubNub.addPushNotificationsOnChannels()
+                .pushType(PNPushType.GCM)
+                .channels(Arrays.asList(channel))
+                .deviceId(Build.DEVICE)
+                .async(new PNCallback<PNPushAddChannelResult>() {
+            @Override
+            public void onResponse(PNPushAddChannelResult result, PNStatus status) {
+                Log.d(LOG_TAG, "setPushNotificationListener(): onResponse called: " + status.getStatusCode());
+            }
+        });
     }
 }
