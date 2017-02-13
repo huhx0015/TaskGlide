@@ -6,7 +6,7 @@ Team: Tal Globus, Yan Ming Hong, Michael Huh, Emanuele Pagani, Ashley Vernon
 Platform: Android, Web
 
 ### TASKGLIDE:
-![android_preview_3](https://cloud.githubusercontent.com/assets/1645482/22865723/d9132f5a-f11e-11e6-9e53-5578ff678353.png)
+![taskglide_preview](https://cloud.githubusercontent.com/assets/1645482/22869608/4d0fd7c4-f155-11e6-92d8-6c7a302040f9.gif)
 
 ## Event
 
