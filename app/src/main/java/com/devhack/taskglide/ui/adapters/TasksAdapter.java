@@ -72,15 +72,22 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TasksViewHol
         String taskName = taskList.get(position).getName();
         taskName = taskName.replace("_", " ");
 
-        if (taskStatus == 0 || taskStatus == -1) {
-            holder.taskCheckbox.setChecked(false);
-            holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.black));
-        } else if (taskStatus == 1){
-            holder.taskCheckbox.setChecked(true);
-            holder.taskCheckbox.setEnabled(false);
-            holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
-            holder.taskTextView.setPaintFlags(holder.taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        switch (taskStatus) {
+
+            case 0:
+                holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.black));
+                break;
+            case 1:
+                holder.taskCheckbox.setEnabled(false);
+                holder.taskTextView.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
+                //holder.taskTextView.setPaintFlags(holder.taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                break;
+            case 2:
+                holder.taskCheckbox.setChecked(true);
+                holder.taskCheckbox.setEnabled(false);
+                break;
         }
+
         holder.taskTextView.setText(taskName);
     }
 
