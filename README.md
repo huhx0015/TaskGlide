@@ -27,5 +27,7 @@ TaskGlide is a web and mobile app for connecting creators and clients and facili
 ## Related Repositories:
 
 Backend: https://github.com/talglobus/taskglide
+
 Web Application: https://github.com/knyghtryda/TaskGlide
+
 Frontend: https://github.com/ashleyvernon/taskglide
